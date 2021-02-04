@@ -17,7 +17,7 @@ public class Util {
 				denom.getOnesCount());
 	}
 
-	public static void putMoney(Account account, String command) {
+	public static Account putMoney(Account account, String command) {
 		Integer[] denomCount = denomCountCommandToArray(command);
 		
 		DenominationCount denom = account.getDenomination();
@@ -29,9 +29,10 @@ public class Util {
 		
 		account.setTotal(getTotal(denom));
 		printAccount(account);
+		return account;
 	}
 
-	public static void takeMoney(Account account, String command) {
+	public static Account takeMoney(Account account, String command) {
 		Integer[] denomCount = denomCountCommandToArray(command);
 		
 		DenominationCount denom = account.getDenomination();
@@ -43,6 +44,7 @@ public class Util {
 		
 		account.setTotal(getTotal(denom));
 		printAccount(account);
+		return account;
 	}
 	
 	private static Integer[] denomCountCommandToArray(String command) {
@@ -52,17 +54,19 @@ public class Util {
 		        .toArray(Integer[]::new);
 	}
 	
-	public static void requestChange(Account account, String command) {
+	public static String requestChange(Account account, String command) {
 		Integer change = Integer.parseInt(command.replaceAll("[^0-9]", " ").trim());
+		String requestedChangeDenom = "sorry";
 		try {
 			int denomCountArrRemove[] = new int[5];
-			computeChange(change, account, denomCountArrRemove);
+			requestedChangeDenom = computeChange(change, account, denomCountArrRemove);
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 		}
+		return requestedChangeDenom;
 	}
 
-	private static void computeChange(Integer change, Account account, int[] denomCountArrRemove) throws Exception {
+	private static String computeChange(Integer change, Account account, int[] denomCountArrRemove) throws Exception {
 		try {
 			DenominationCount denom = account.getDenomination();
 			for(Denomination d : Denomination.values()) {
@@ -115,6 +119,8 @@ public class Util {
 		} catch (StackOverflowError e) {
 			throw new Exception("sorry");
 		}
+		return Arrays.toString(denomCountArrRemove)
+				.substring(1).replaceFirst("]", "").replace(", ", " ");
 	}
 
 	private static BigDecimal getTotal(DenominationCount denom) {
